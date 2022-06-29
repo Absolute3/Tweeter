@@ -1,0 +1,51 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <div class = "body-container">
+        <br>
+        <div class = "user">
+            <div class="card" style="width: 50rem; margin-left: 10px;">
+                <div class="card-body">
+                  <h5 class="card-title">{{user_now.username}}</h5>
+                  <p>Followers : {{followers}}  Following: {{following}}</p>
+                  {% if can_follow %}
+                  {% if followed %}
+                    <p><a href = "{% url 'unfollow' user_now.username%}" ><button type="button" class="btn btn-primary btn-sm" > <i class="bi bi-person-dash-fill"></i> UnFollow </button></a></p>
+                    {%else%}
+                    <p><a href = "{% url 'follow' user_now.username%}" ><button type="button" class="btn btn-primary btn-sm" > <i class="bi bi-person-plus-fill"></i> Follow </button></a></p>
+                {% endif %}
+                {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <br>
+        
+        <div class = "post">
+            
+            {% if page_obj %}
+                {% for post in page_obj %}
+                <div class="card" style="width: 50rem; margin-left: 10px;">
+                    <div class="card-body">
+                        {% if request.user == post.user %}
+                        <a style = "float:right" href = "{% url 'editpost' post.id %}" ><button class = "btn btn-link">Edit</button></a>
+                        {% endif %} 
+                        <a href = "user/{{post.user.username}}" ><h5 class="card-title username">{{post.user.username}}</h5></a>
+                        
+                        <h6 class="card-text">{{post.post}}</h6>
+                        
+                        <hr>
+                        <p class="card-subtitle mb-2 text-muted" style="float:right">{{post.edited_at}}</p>
+                        <div class = "likes">
+                            <a href = "{% url 'like' post.id %}"><p class = "card-subtitle mb-2 text-muted" id = "likes"><button onclick = "updateLike({{post.id}})" class="btn btn-outline-success btn-sm" id ="like-button"><i style="size: 5px; color:red"class="bi bi-heart-fill"></i>  {{post.likes}}</button></p></a>
+                        </div> 
+                    </div>
+                </div>
+                <br />
+                {%endfor%}
+            {% else %} 
+                <p>No posts yet!</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}  

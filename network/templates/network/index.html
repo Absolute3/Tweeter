@@ -1,0 +1,98 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    <div class = "body-container">
+        <h1>All Posts</h1>
+        <nav aria-label="Pagination">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a  href="?page=1" class="page-link">&laquo; first</a>
+                </li>
+                <li class="page-item">
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link" >previous</a>
+                </li>
+                {% else %} 
+                <li class="page-item disabled">
+                    <a class="page-link">&laquo; first</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link">previous</a>
+                </li>
+                {% endif %}
+
+                {% for page in page_obj.paginator.page_range %}
+                {% if page == page_obj.number %}
+                <span class="current">
+                    <li class="page-item active"><a class="page-link">{{ page }}</a></li>
+                </span>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="?page={{page}}">{{ page }}</a></li>
+                {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">next</a>
+                </li>
+                <li class="page-item">
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">last &raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">next</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link">last &raquo;</a>
+                </li>
+                {% endif %}   
+            </ul>
+          </nav>
+        <hr>
+        <div class = "post" style="margin-left:20px" id ="#all-posts">
+            {% if page_obj %}
+                {% for post in page_obj %}
+                <div class="card" style="width: 50rem; margin-left: 10px;">
+                    <div class="card-body">
+                        {% if request.user == post.user %}
+                        <a style = "float:right" href = "{% url 'editpost' post.id %}" ><button class = "btn btn-link">Edit</button></a>
+                        {% endif %} 
+                        <a href = "user/{{post.user.username}}" ><h5 class="card-title username">{{post.user.username}}</h5></a>
+                        <h6 class="card-text">{{post.post}}</h6>
+                        <hr>
+                        <p class="card-subtitle mb-2 text-muted" style="float:right">{{post.edited_at}}</p>
+                        <div class = "likes">
+                            <a href = "{% url 'like' post.id %}"><p class = "card-subtitle mb-2 text-muted" id = "likes"><button onclick = "updateLike({{post.id}})" class="btn btn-outline-success btn-sm" id ="like-button"><i style="size: 5px; color:red"class="bi bi-heart-fill"></i>  {{post.likes}}</button></p></a>
+                        </div> 
+                    </div>
+                </div>
+                <br />
+                {% endfor %}
+                
+            </div>
+                 
+            {% else %} 
+                <p>No posts yet!</p>
+            {% endif %}
+        </div>
+
+        <script>
+            function updateLike(id){}
+                fetch(`like/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(document.querySelector('#likes').innerHTML);
+                    document.querySelector("#likes").innerHTML = `<button onclick = "updateLike(`+id+`)" class="btn btn-danger btn-sm" id ="like-button"><i style="size: 5px; color:red"class="bi bi-heart-fill"></i></button> ${data.likes}`;
+                })
+            </script> 
+    {% endblock %}
+    
+
+
+
